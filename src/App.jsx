@@ -17,10 +17,16 @@ export default function App() {
   const [activeSection, setActiveSection] = useState(1);
   const totalSections = 10;
   const lenisRef = useRef(null);
+  const mainRef = useRef(null);
+  const isScrollingRef = useRef(false);
 
-  // Initialize Lenis Super-Smooth Inertia Scroll Engine
+  // Initialize Lenis Super-Smooth Inertia Scroll Engine targeting the main scroll container
   useEffect(() => {
+    if (!mainRef.current) return;
+
     const lenis = new Lenis({
+      wrapper: mainRef.current,
+      content: mainRef.current,
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
@@ -32,20 +38,24 @@ export default function App() {
 
     lenisRef.current = lenis;
 
+    let animationFrameId;
     function raf(time) {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      animationFrameId = requestAnimationFrame(raf);
     }
-    requestAnimationFrame(raf);
+    animationFrameId = requestAnimationFrame(raf);
 
     return () => {
+      cancelAnimationFrame(animationFrameId);
       lenis.destroy();
     };
   }, []);
 
   // IntersectionObserver to automatically detect active section (01 to 10)
   useEffect(() => {
-    const sectionElements = document.querySelectorAll('section');
+    const mainEl = mainRef.current;
+    if (!mainEl) return;
+    const sectionElements = mainEl.querySelectorAll('section');
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -59,7 +69,8 @@ export default function App() {
         });
       },
       {
-        threshold: 0.4, // Section is active when 40% visible
+        root: mainEl,
+        threshold: 0.4,
       }
     );
 
@@ -68,6 +79,66 @@ export default function App() {
     return () => {
       sectionElements.forEach((sec) => observer.unobserve(sec));
     };
+  }, []);
+
+  // Smooth scroll to target section
+  const scrollToSection = (sectionNumber) => {
+    const mainEl = mainRef.current;
+    if (!mainEl) return;
+
+    const sectionElements = mainEl.querySelectorAll('section');
+    const targetElement = sectionElements[sectionNumber - 1];
+
+    if (targetElement && lenisRef.current) {
+      lenisRef.current.scrollTo(targetElement, { offset: 0, duration: 1.0 });
+    } else if (targetElement) {
+      targetElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // Mouse wheel slide-by-slide transition handler
+  useEffect(() => {
+    const mainEl = mainRef.current;
+    if (!mainEl) return;
+
+    const handleWheel = (e) => {
+      // Allow minor trackpad jitter without triggering slide transition
+      if (Math.abs(e.deltaY) < 10) return;
+      if (isScrollingRef.current) return;
+
+      if (e.deltaY > 0) {
+        // Scroll down -> next slide
+        setActiveSection((prev) => {
+          if (prev < totalSections) {
+            isScrollingRef.current = true;
+            const next = prev + 1;
+            scrollToSection(next);
+            setTimeout(() => {
+              isScrollingRef.current = false;
+            }, 750);
+            return next;
+          }
+          return prev;
+        });
+      } else if (e.deltaY < 0) {
+        // Scroll up -> previous slide
+        setActiveSection((prev) => {
+          if (prev > 1) {
+            isScrollingRef.current = true;
+            const next = prev - 1;
+            scrollToSection(next);
+            setTimeout(() => {
+              isScrollingRef.current = false;
+            }, 750);
+            return next;
+          }
+          return prev;
+        });
+      }
+    };
+
+    mainEl.addEventListener('wheel', handleWheel, { passive: true });
+    return () => mainEl.removeEventListener('wheel', handleWheel);
   }, []);
 
   // Keyboard arrow & page key navigation for slide-by-slide control
@@ -95,18 +166,6 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Smooth scroll to target section
-  const scrollToSection = (sectionNumber) => {
-    const sectionElements = document.querySelectorAll('section');
-    const targetElement = sectionElements[sectionNumber - 1];
-
-    if (targetElement && lenisRef.current) {
-      lenisRef.current.scrollTo(targetElement, { offset: 0, duration: 1.2 });
-    } else if (targetElement) {
-      targetElement.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
     <div className="relative bg-[#08090B] text-slate-100 h-screen w-screen overflow-hidden font-sans">
       {/* Navigation Header & Progress Dots */}
@@ -117,7 +176,10 @@ export default function App() {
       />
 
       {/* Main Presentation Slides Container */}
-      <main className="w-full h-full overflow-y-auto snap-y snap-mandatory scroll-smooth flex flex-col">
+      <main
+        ref={mainRef}
+        className="w-full h-full overflow-y-auto snap-y snap-mandatory scroll-smooth flex flex-col"
+      >
         <Section01Hero onNext={() => scrollToSection(2)} />
         <Section02Problem />
         <Section03Opportunity />
