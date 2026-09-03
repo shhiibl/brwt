@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Lenis from 'lenis';
 
 import Navigation from './components/Navigation';
 import Section01Hero from './components/sections/Section01Hero';
@@ -16,40 +15,20 @@ import Section10FinalVision from './components/sections/Section10FinalVision';
 export default function App() {
   const [activeSection, setActiveSection] = useState(1);
   const totalSections = 10;
-  const lenisRef = useRef(null);
   const mainRef = useRef(null);
-  const isScrollingRef = useRef(false);
 
-  // Initialize Lenis Super-Smooth Inertia Scroll Engine targeting the main scroll container
-  useEffect(() => {
-    if (!mainRef.current) return;
+  // Smooth scroll to target section
+  const scrollToSection = (sectionNumber) => {
+    const mainEl = mainRef.current;
+    if (!mainEl) return;
 
-    const lenis = new Lenis({
-      wrapper: mainRef.current,
-      content: mainRef.current,
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: 'vertical',
-      gestureOrientation: 'vertical',
-      smoothWheel: true,
-      wheelMultiplier: 1.0,
-      touchMultiplier: 1.5,
-    });
+    const sectionElements = mainEl.querySelectorAll('section');
+    const targetElement = sectionElements[sectionNumber - 1];
 
-    lenisRef.current = lenis;
-
-    let animationFrameId;
-    function raf(time) {
-      lenis.raf(time);
-      animationFrameId = requestAnimationFrame(raf);
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    animationFrameId = requestAnimationFrame(raf);
-
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      lenis.destroy();
-    };
-  }, []);
+  };
 
   // IntersectionObserver to automatically detect active section (01 to 10)
   useEffect(() => {
@@ -81,78 +60,26 @@ export default function App() {
     };
   }, []);
 
-  // Smooth scroll to target section
-  const scrollToSection = (sectionNumber) => {
-    const mainEl = mainRef.current;
-    if (!mainEl) return;
-
-    const sectionElements = mainEl.querySelectorAll('section');
-    const targetElement = sectionElements[sectionNumber - 1];
-
-    if (targetElement && lenisRef.current) {
-      lenisRef.current.scrollTo(targetElement, { offset: 0, duration: 1.0 });
-    } else if (targetElement) {
-      targetElement.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  // Mouse wheel slide-by-slide transition handler
-  useEffect(() => {
-    const mainEl = mainRef.current;
-    if (!mainEl) return;
-
-    const handleWheel = (e) => {
-      // Allow minor trackpad jitter without triggering slide transition
-      if (Math.abs(e.deltaY) < 10) return;
-      if (isScrollingRef.current) return;
-
-      if (e.deltaY > 0) {
-        // Scroll down -> next slide
-        setActiveSection((prev) => {
-          if (prev < totalSections) {
-            isScrollingRef.current = true;
-            const next = prev + 1;
-            scrollToSection(next);
-            setTimeout(() => {
-              isScrollingRef.current = false;
-            }, 750);
-            return next;
-          }
-          return prev;
-        });
-      } else if (e.deltaY < 0) {
-        // Scroll up -> previous slide
-        setActiveSection((prev) => {
-          if (prev > 1) {
-            isScrollingRef.current = true;
-            const next = prev - 1;
-            scrollToSection(next);
-            setTimeout(() => {
-              isScrollingRef.current = false;
-            }, 750);
-            return next;
-          }
-          return prev;
-        });
-      }
-    };
-
-    mainEl.addEventListener('wheel', handleWheel, { passive: true });
-    return () => mainEl.removeEventListener('wheel', handleWheel);
-  }, []);
-
   // Keyboard arrow & page key navigation for slide-by-slide control
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (['ArrowDown', 'PageDown', 'Space'].includes(e.code)) {
-        if (e.code === 'Space' && (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON')) return;
+      // Don't intercept when user is typing inside input elements
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
+
+      const isDown = ['ArrowDown', 'PageDown', 'Space'].includes(e.key) || ['ArrowDown', 'PageDown', 'Space'].includes(e.code);
+      const isUp = ['ArrowUp', 'PageUp'].includes(e.key) || ['ArrowUp', 'PageUp'].includes(e.code);
+
+      if (isDown) {
+        if (e.key === ' ' || e.code === 'Space') {
+          if (['BUTTON', 'A'].includes(document.activeElement?.tagName)) return;
+        }
         e.preventDefault();
         setActiveSection((prev) => {
           const next = Math.min(prev + 1, totalSections);
           scrollToSection(next);
           return next;
         });
-      } else if (['ArrowUp', 'PageUp'].includes(e.code)) {
+      } else if (isUp) {
         e.preventDefault();
         setActiveSection((prev) => {
           const next = Math.max(prev - 1, 1);
@@ -162,8 +89,8 @@ export default function App() {
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
   }, []);
 
   return (
