@@ -70,20 +70,45 @@ export default function App() {
     };
   }, []);
 
+  // Keyboard arrow & page key navigation for slide-by-slide control
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (['ArrowDown', 'PageDown', 'Space'].includes(e.code)) {
+        if (e.code === 'Space' && (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON')) return;
+        e.preventDefault();
+        setActiveSection((prev) => {
+          const next = Math.min(prev + 1, totalSections);
+          scrollToSection(next);
+          return next;
+        });
+      } else if (['ArrowUp', 'PageUp'].includes(e.code)) {
+        e.preventDefault();
+        setActiveSection((prev) => {
+          const next = Math.max(prev - 1, 1);
+          scrollToSection(next);
+          return next;
+        });
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   // Smooth scroll to target section
   const scrollToSection = (sectionNumber) => {
     const sectionElements = document.querySelectorAll('section');
     const targetElement = sectionElements[sectionNumber - 1];
 
     if (targetElement && lenisRef.current) {
-      lenisRef.current.scrollTo(targetElement, { offset: 0, duration: 1.4 });
+      lenisRef.current.scrollTo(targetElement, { offset: 0, duration: 1.2 });
     } else if (targetElement) {
       targetElement.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
   return (
-    <div className="relative bg-[#08090B] text-slate-100 min-h-screen font-sans overflow-x-hidden">
+    <div className="relative bg-[#08090B] text-slate-100 h-screen w-screen overflow-hidden font-sans">
       {/* Navigation Header & Progress Dots */}
       <Navigation
         activeSection={activeSection}
@@ -92,7 +117,7 @@ export default function App() {
       />
 
       {/* Main Presentation Slides Container */}
-      <main className="w-full flex flex-col">
+      <main className="w-full h-full overflow-y-auto snap-y snap-mandatory scroll-smooth flex flex-col">
         <Section01Hero onNext={() => scrollToSection(2)} />
         <Section02Problem />
         <Section03Opportunity />

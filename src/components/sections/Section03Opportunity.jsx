@@ -22,40 +22,40 @@ export default function Section03Opportunity() {
   }, []);
 
   return (
-    <section className="relative w-full min-h-screen flex flex-col justify-center items-center px-6 py-20 md:px-16 bg-[#08090B] snap-start border-t border-white/5 overflow-hidden">
+    <section className="relative w-full h-screen max-h-screen flex flex-col justify-between items-center px-4 sm:px-6 md:px-12 lg:px-16 pt-20 pb-6 bg-[#08090B] snap-start border-t border-white/5 overflow-hidden shrink-0">
       {/* Glow background */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[#00FF9D]/5 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] lg:w-[700px] h-[600px] lg:h-[700px] bg-[#00FF9D]/5 rounded-full blur-[150px] pointer-events-none" />
 
-      <div className="max-w-6xl w-full flex flex-col gap-12 z-10">
+      <div className="max-w-6xl w-full h-full flex flex-col justify-between gap-4 lg:gap-6 z-10 my-auto">
         {/* Section Header */}
-        <div className="flex flex-col items-center text-center gap-4">
-          <span className="px-3 py-1 rounded-full glass-panel text-xs font-mono-tech text-[#00FF9D] border border-[#00FF9D]/20 uppercase tracking-widest">
+        <div className="flex flex-col items-center text-center gap-2">
+          <span className="px-3 py-0.5 rounded-full glass-panel text-[10px] md:text-xs font-mono-tech text-[#00FF9D] border border-[#00FF9D]/20 uppercase tracking-widest">
             03 — THE PARADIGM SHIFT
           </span>
-          <h2 className="text-4xl sm:text-6xl md:text-8xl font-black font-space text-white leading-none uppercase tracking-tight">
+          <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black font-space text-white leading-none uppercase tracking-tight">
             THE INVENTORY<br />
             <span className="text-gradient-mint">ALREADY EXISTS.</span>
           </h2>
-          <p className="text-slate-400 text-lg md:text-2xl font-light max-w-2xl">
+          <p className="text-slate-400 text-sm md:text-lg font-light max-w-xl">
             The problem isn&apos;t a lack of products. It&apos;s a lack of access.
           </p>
         </div>
 
         {/* 3D Neighborhood Node Network Simulation */}
-        <div className="w-full glass-panel rounded-3xl p-6 md:p-10 border border-white/10 relative overflow-hidden h-[420px] md:h-[480px] flex flex-col justify-between shadow-2xl">
+        <div className="w-full glass-panel rounded-2xl lg:rounded-3xl p-4 md:p-6 lg:p-8 border border-white/10 relative overflow-hidden flex-1 max-h-[48vh] lg:max-h-[52vh] min-h-0 flex flex-col justify-between shadow-2xl">
           {/* Top Bar control */}
-          <div className="w-full flex items-center justify-between z-20">
-            <div className="flex items-center gap-3">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#00FF9D] animate-ping" />
-              <span className="text-xs font-mono-tech text-slate-300">
+          <div className="w-full flex items-center justify-between z-20 pb-2">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#00FF9D] animate-ping" />
+              <span className="text-[10px] md:text-xs font-mono-tech text-slate-300 truncate">
                 HYPERLOCAL NEIGHBORHOOD SIMULATION (GRID #402)
               </span>
             </div>
             <button
               onClick={() => setIsConnected(!isConnected)}
-              className="pointer-events-auto px-4 py-2 rounded-xl glass-panel-glow text-xs font-mono-tech text-[#00FF9D] flex items-center gap-2 hover:bg-[#00FF9D]/20 transition-all cursor-pointer"
+              className="pointer-events-auto px-3 py-1.5 rounded-xl glass-panel-glow text-[10px] md:text-xs font-mono-tech text-[#00FF9D] flex items-center gap-1.5 hover:bg-[#00FF9D]/20 transition-all cursor-pointer shrink-0"
             >
-              <Wifi className="w-3.5 h-3.5" />
+              <Wifi className="w-3 h-3" />
               <span>{isConnected ? "NETWORK ACTIVE (5 CONNECTIONS)" : "CONNECT INVENTORY NODE"}</span>
             </button>
           </div>
@@ -75,7 +75,7 @@ export default function Section03Opportunity() {
           </svg>
 
           {/* House Node Badges */}
-          <div className="relative w-full h-full z-20 my-4">
+          <div className="relative w-full h-full z-20 my-2">
             {houses.map((house) => {
               const Icon = house.icon;
               return (
@@ -83,20 +83,20 @@ export default function Section03Opportunity() {
                   key={house.id}
                   style={{ left: `${house.x}%`, top: `${house.y}%` }}
                   className="absolute -translate-x-1/2 -translate-y-1/2 group cursor-pointer"
-                  whileHover={{ scale: 1.1 }}
+                  whileHover={{ scale: 1.08 }}
                 >
-                  <div className={`p-3 md:p-4 rounded-2xl border transition-all duration-500 flex items-center gap-3 ${
+                  <div className={`p-2 md:p-3 rounded-xl border transition-all duration-300 flex items-center gap-2 md:gap-3 ${
                     isConnected
                       ? 'glass-panel-glow border-[#00FF9D]/60 bg-[#0F1219] shadow-[0_0_20px_rgba(0,255,157,0.3)]'
                       : 'glass-panel border-white/10 bg-[#0F1219]/80'
                   }`}>
-                    <div className="w-8 h-8 rounded-lg bg-[#00FF9D]/10 flex items-center justify-center text-[#00FF9D]">
-                      <Icon className="w-4 h-4" />
+                    <div className="w-6 h-6 md:w-7 md:h-7 rounded-lg bg-[#00FF9D]/10 flex items-center justify-center text-[#00FF9D] shrink-0">
+                      <Icon className="w-3.5 h-3.5" />
                     </div>
                     <div className="flex flex-col text-left">
-                      <span className="text-[10px] font-mono-tech text-slate-400">{house.label}</span>
-                      <span className="text-xs font-bold font-space text-white">{house.item}</span>
-                      <span className="text-[9px] text-[#00FF9D]">{house.owner}</span>
+                      <span className="text-[9px] font-mono-tech text-slate-400">{house.label}</span>
+                      <span className="text-xs font-bold font-space text-white leading-tight">{house.item}</span>
+                      <span className="text-[8px] md:text-[9px] text-[#00FF9D]">{house.owner}</span>
                     </div>
                   </div>
                 </motion.div>
@@ -105,18 +105,18 @@ export default function Section03Opportunity() {
           </div>
 
           {/* Bottom Banner */}
-          <div className="w-full flex items-center justify-between text-xs font-mono-tech z-20 border-t border-white/10 pt-4">
-            <span className="text-slate-400">STATUS: {isConnected ? "CONNECTED MARKETPLACE ACTIVE" : "ISOLATED HOME INVENTORIES"}</span>
-            <span className="text-[#00FF9D]">ZERO NEW FACTORY EMISSIONS NEEDED</span>
+          <div className="w-full flex items-center justify-between text-[10px] md:text-xs font-mono-tech z-20 border-t border-white/10 pt-3">
+            <span className="text-slate-400 truncate">STATUS: {isConnected ? "CONNECTED MARKETPLACE ACTIVE" : "ISOLATED HOME INVENTORIES"}</span>
+            <span className="text-[#00FF9D] shrink-0">ZERO NEW FACTORY EMISSIONS</span>
           </div>
         </div>
 
         {/* Ownership to Access Shift Banner */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 p-6 rounded-2xl glass-panel border border-white/10 text-center sm:text-left">
-          <div className="flex items-center gap-4">
-            <span className="text-slate-500 font-mono-tech text-xl font-bold line-through">PERMANENT OWNERSHIP</span>
-            <ArrowRight className="w-6 h-6 text-[#00FF9D]" />
-            <span className="text-white font-space text-2xl font-bold text-gradient-mint">HYPERLOCAL TEMPORARY ACCESS</span>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-6 p-3 md:p-4 rounded-xl lg:rounded-2xl glass-panel border border-white/10 text-center sm:text-left">
+          <div className="flex items-center gap-3 md:gap-4">
+            <span className="text-slate-500 font-mono-tech text-sm sm:text-lg md:text-xl font-bold line-through">PERMANENT OWNERSHIP</span>
+            <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-[#00FF9D]" />
+            <span className="text-white font-space text-base sm:text-xl md:text-2xl font-bold text-gradient-mint">HYPERLOCAL TEMPORARY ACCESS</span>
           </div>
         </div>
       </div>
